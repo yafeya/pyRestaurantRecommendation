@@ -35,27 +35,72 @@ class InterestingQuery(Query):
     __tag__: str = ''
     __record_count__: int = 100
     __page_size__: int = 20
+    __price_section__: str = ''
 
-    def __init__(self, city: str, address: str, ak: str = '', sk: str = '', tag: str = '', records: int = 100):
+    def __init__(self, city: str, address: str, ak: str = '', sk: str = '', tag: str = '',
+                 price_section: str = '0,35', records: int = 100):
         self.__city__ = city
         self.__address__ = address
         self.__tag__ = tag
         self.__record_count__ = records
         self.ak = ak
         self.sk = sk
+        self.__price_section__ = price_section
 
     def __get_query_url__(self, page_num: int):
+        filter_part = f'industry_type:cater|sort_name:price|sort_rule:0|' \
+            f'price_section:{self.__price_section__}|groupon:0|discount:0'
         page_size = self.__record_count__ if self.__record_count__ < self.__page_size__ else self.__page_size__
         query_url = f'/place/v2/search?query={self.__address__}&tag={self.__tag__}&region={self.__city__}' \
-            f'&scope=2&page_size={page_size}&page_num={page_num}' \
+            f'&scope=2&page_size={page_size}&page_num={page_num}&filter={filter_part}' \
             if self.__tag__ != '' else \
             f'place/v2/search?query={self.__address__}&region={self.__city__}&scope=2&page_size={page_size}' \
-            f'&page_num={page_num}'
+            f'&page_num={page_num}&filter={filter_part}'
 
         return query_url
 
     def get_hashed_urls(self):
         page_count = int(self.__record_count__ / self.__page_size__)\
+            if self.__record_count__ % self.__page_size__ == 0 \
+            else int(self.__record_count__ / self.__page_size__) + 1
+
+        url_list: list = list()
+
+        for page_num in range(1, page_count + 1):
+            query_url = self.__get_query_url__(page_num)
+            hashed_url = self.__get_hashed_url__(query_url)
+            url_list.append(hashed_url)
+
+        return url_list
+
+
+class InterestingRadiusQuery(Query):
+    __tag__: str = ''
+    __location__: str = ''
+    __radius__: int = 1500
+    __price_section__: str = ''
+
+    def __init__(self, tag: str, location: str, radius: int = 1500,
+                 ak: str = '', sk: str = '', price_section: str = '0,35',
+                 page_size: int = 20, records_count: int = 100):
+        self.__tag__ = tag
+        self.__location__ = location
+        self.__radius__ = radius
+        self.ak = ak
+        self.sk = sk
+        self.__page_size__ = page_size
+        self.__record_count__ = records_count
+        self.__price_section__ = price_section
+
+    def __get_query_url__(self, page_num: int):
+        filter_part = f'industry_type:cater|sort_name:price|sort_rule:0|' \
+            f'price_section:{self.__price_section__}|groupon:0|discount:0'
+        query_url = f'/place/v2/search?query={self.__tag__}&page_size={self.__page_size__}&page_num={page_num}' \
+            f'&location={self.__location__}&radius={self.__radius__}&scope=2&filter={filter_part}'
+        return query_url
+
+    def get_hashed_urls(self):
+        page_count = int(self.__record_count__ / self.__page_size__) \
             if self.__record_count__ % self.__page_size__ == 0 \
             else int(self.__record_count__ / self.__page_size__) + 1
 
@@ -121,8 +166,11 @@ class IpLocationQuery(Query):
 class RouteCalculationQuery(Query):
     __start__: LocationPosition = None
     __destination__: LocationPosition = None
+    __record_count__: int = 100
+    __page_size__: int = 20
 
-    def __init__(self, start: LocationPosition, destination: LocationPosition, ak: str = '', sk: str = ''):
+    def __init__(self, start: LocationPosition, destination: LocationPosition,
+                 ak: str = '', sk: str = ''):
         if start is None or destination is None:
             raise ValueError
 
