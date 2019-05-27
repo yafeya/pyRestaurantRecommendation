@@ -12,13 +12,13 @@ CORS(app)
 app.config['SECRET_KEY'] = 'secret!'
 
 
-def start_restful_server():
+def start_restful_server(host: str, port: int):
     ak = 'jLKWXCmDwGdfddhBvaB0GmqBr8K5gwum'
     sk = 'ZphXAtI0goU2aRcOGFpzPsWmZOY00UNa'
     print('starting restful server for restaurant recommendation...')
     restaurant_args = {'ak': ak, 'sk': sk}
     api.add_resource(RestaurantsInAreaApiController, '/restaurants/<location>/<price_section>',
                      resource_class_kwargs=restaurant_args)
-    run_simple('localhost', 9981, app,
+    run_simple(host, port, app,
                use_reloader=True, use_debugger=True, use_evalex=True)
 
