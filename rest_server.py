@@ -2,6 +2,7 @@ from flask import Flask
 from flask_restful import Api
 from flask_cors import CORS
 from RestaurantApiControllers import RestaurantsAllApiController, RestaurantsInAreaApiController
+from TestConnectionApiController import TestConnectionApiController
 from werkzeug.serving import run_simple
 
 
@@ -19,6 +20,7 @@ def start_restful_server(host: str, port: int):
     restaurant_args = {'ak': ak, 'sk': sk}
     api.add_resource(RestaurantsInAreaApiController, '/restaurants/<location>/<price_section>',
                      resource_class_kwargs=restaurant_args)
+    api.add_resource(TestConnectionApiController, '/test')
     run_simple(host, port, app,
                use_reloader=True, use_debugger=True, use_evalex=True)
 
