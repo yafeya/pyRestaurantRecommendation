@@ -2,7 +2,7 @@ from flask_restful import Resource
 import requests
 from query import InterestingQuery, InterestingRadiusQuery, PlaceQuery, RouteCalculationQuery
 from LocationPosition import LocationPosition
-from responses import map_to_place, map_to_route, map_to_restaurants
+from responses import map_to_place, map_to_route, map_to_restaurants, Restaurant
 import json
 
 
@@ -15,6 +15,10 @@ def get_favorites():
 class RestaurantsAllApiController(Resource):
     __ak__: str = ''
     __sk__: str = ''
+
+    __rating_weight__ = 75
+    __price_weight__ = 36
+    __distance_weight__ = 24
 
     def __init__(self, ak: str, sk: str):
         if ak is None or ak == '':
@@ -32,9 +36,10 @@ class RestaurantsAllApiController(Resource):
 
         try:
             restaurants = self.__get_restaurants__(location, price_section)
+            sorted_restaurants = self.__sort_restaurants__(restaurants)
             restaurant_list = []
-            for restaurant in restaurants:
-                j_obj = json.dumps(restaurant.to_json())
+            for restaurant in sorted_restaurants:
+                j_obj = json.dumps(restaurant.get('restaurant').to_json())
                 restaurant_list.append(j_obj)
 
             return restaurant_list, 200
@@ -43,6 +48,25 @@ class RestaurantsAllApiController(Resource):
             return 'Error happens', 500
         else:
             return 'Error happens', 500
+
+    def __sort_restaurants__(self, restaurants: []):
+        target_list = []
+        for restaurant in restaurants:
+            score = self.__generate_scores__(restaurant)
+            target = {'restaurant': restaurant, 'score': score}
+            target_list.append(target)
+        target_list.sort(key=lambda x: x['score'], reverse=True)
+        copy_count = 5 if len(target_list) > 5 else len(target_list)
+        copy_items = []
+        for index in range(0, copy_count):
+            copy_items.append(target_list[index])
+        return copy_items
+
+    def __generate_scores__(self, restaurant: Restaurant):
+        score = (restaurant.rating / 5) * self.__rating_weight__ \
+                + (1 - restaurant.price / 200) * self.__price_weight__ \
+                + (1 - restaurant.distance / 2000) * self.__distance_weight__
+        return score
 
     def __fill_restaurant_details__(self, origin_location, restaurant):
         query_routing = RouteCalculationQuery(start=origin_location, destination=restaurant.location,

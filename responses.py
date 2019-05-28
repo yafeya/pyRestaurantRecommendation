@@ -3,6 +3,7 @@ import json
 
 
 class Restaurant:
+
     name: str = ''
     location: LocationPosition = None
     distance: int
@@ -10,8 +11,8 @@ class Restaurant:
     province: str = ''
     city: str = ''
     address: str = ''
-    price: float = ''
-    rating: float = ''
+    price: float = 0
+    rating: float = 0
 
     def to_json(self):
         return {

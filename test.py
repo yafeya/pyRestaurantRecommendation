@@ -1,4 +1,5 @@
 from RestaurantApiControllers import RestaurantsAllApiController, RestaurantsInAreaApiController
+from responses import Restaurant
 import time
 
 
@@ -10,8 +11,11 @@ if __name__ == '__main__':
     controller = RestaurantsInAreaApiController(ak=ak, sk=sk)
     start_time = time.time()
     restaurants = controller.__get_restaurants__(location, '50,80')
+    sort_items = controller.__sort_restaurants__(restaurants)
     end_time = time.time()
 
-    for restaurant in restaurants:
-        print(f'{restaurant.name}: {restaurant.price}. distance: {restaurant.distance}')
+    for sort_item in sort_items:
+        restaurant = sort_item.get('restaurant')
+        score = sort_item.get('score')
+        print(f'{restaurant.name}: {restaurant.price}. distance: {restaurant.distance}, score: {score}')
     print(f'use: {end_time-start_time}')
