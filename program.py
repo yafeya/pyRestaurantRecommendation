@@ -9,4 +9,4 @@ if __name__ == '__main__':
     host = settings.get('host')
     port = int(settings.get('port'))
 
-    start_restful_server(host, port)
+    start_restful_server()
