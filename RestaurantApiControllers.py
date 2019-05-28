@@ -56,7 +56,7 @@ class RestaurantsAllApiController(Resource):
             target = {'restaurant': restaurant, 'score': score}
             target_list.append(target)
         target_list.sort(key=lambda x: x['score'], reverse=True)
-        copy_count = 5 if len(target_list) > 5 else len(target_list)
+        copy_count = 10 if len(target_list) > 5 else len(target_list)
         copy_items = []
         for index in range(0, copy_count):
             copy_items.append(target_list[index])
