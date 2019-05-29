@@ -1,4 +1,3 @@
-from flask_restful import Resource
 import requests
 from query import InterestingQuery, InterestingRadiusQuery, PlaceQuery, RouteCalculationQuery
 from LocationPosition import LocationPosition
@@ -12,7 +11,7 @@ def get_favorites():
     return res
 
 
-class RestaurantsAllApiController(Resource):
+class RestaurantsAllApiController:
     __ak__: str = ''
     __sk__: str = ''
 
