@@ -41,7 +41,7 @@ class RestaurantsAllApiController:
                 j_obj = json.dumps(restaurant.get('restaurant').to_json())
                 restaurant_list.append(j_obj)
 
-            return restaurant_list, 200
+            return json.dumps(restaurant_list), 200
         except IOError:
             print('RestaurantRecommendationApiController Error when get')
             return 'Error happens', 500
