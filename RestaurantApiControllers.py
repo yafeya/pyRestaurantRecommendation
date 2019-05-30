@@ -3,6 +3,7 @@ from query import InterestingQuery, InterestingRadiusQuery, PlaceQuery, RouteCal
 from LocationPosition import LocationPosition
 from responses import map_to_place, map_to_route, map_to_restaurants, Restaurant
 import json
+from flask import jsonify
 
 
 def get_favorites():
@@ -38,10 +39,10 @@ class RestaurantsAllApiController:
             sorted_restaurants = self.__sort_restaurants__(restaurants)
             restaurant_list = []
             for restaurant in sorted_restaurants:
-                j_obj = json.dumps(restaurant.get('restaurant').to_json())
+                j_obj = restaurant.get('restaurant').to_json()
                 restaurant_list.append(j_obj)
 
-            return json.dumps(restaurant_list), 200
+            return jsonify(restaurant_list), 200
         except IOError:
             print('RestaurantRecommendationApiController Error when get')
             return 'Error happens', 500
