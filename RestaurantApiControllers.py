@@ -30,13 +30,13 @@ class RestaurantsAllApiController:
         self.__ak__ = ak
         self.__sk__ = sk
 
-    def get(self, location: str, price_section: str):
+    def get(self, location: str, price_section: str, result_count: int):
         if location is None or location == '':
             return 'location invalidate', 500
 
         try:
             restaurants = self.__get_restaurants__(location, price_section)
-            sorted_restaurants = self.__sort_restaurants__(restaurants)
+            sorted_restaurants = self.__sort_restaurants__(restaurants, result_count)
             restaurant_list = []
             for restaurant in sorted_restaurants:
                 j_obj = restaurant.get('restaurant').to_json()
@@ -49,14 +49,18 @@ class RestaurantsAllApiController:
         else:
             return 'Error happens', 500
 
-    def __sort_restaurants__(self, restaurants: []):
+    def __sort_restaurants__(self, restaurants: [], result_count: int = 10):
         target_list = []
         for restaurant in restaurants:
             score = self.__generate_scores__(restaurant)
             target = {'restaurant': restaurant, 'score': score}
             target_list.append(target)
         target_list.sort(key=lambda x: x['score'], reverse=True)
-        copy_count = 10 if len(target_list) > 5 else len(target_list)
+        # for x in target_list:
+        #     r = x.get('restaurant')
+        #     s = x.get('score')
+        #     print(f'{r.name}, score: {s}')
+        copy_count = result_count if len(target_list) > result_count else len(target_list)
         copy_items = []
         for index in range(0, copy_count):
             copy_items.append(target_list[index])

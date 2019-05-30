@@ -26,7 +26,8 @@ def index():
 def restaurants():
     location = request.args.get('location')
     price_section = request.args.get('price')
-    return __restaurant_api__.get(location, price_section)
+    result_count = int(request.args.get('result_count'))
+    return __restaurant_api__.get(location, price_section, result_count)
 
 
 if __name__ == '__main__':
